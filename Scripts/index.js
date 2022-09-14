@@ -1,88 +1,73 @@
-let taskElements = document.querySelectorAll(".task")
-let columnElements = document.querySelectorAll(".column")
-let addButtons = document.querySelectorAll(".addBtn")
-let draggable
-let parentColumn;
+const addButtons = document.querySelectorAll('.addBtn')
+let draggables = document.querySelectorAll('.task')
+let containers = document.querySelectorAll('.column')
 
-for(let btn of addButtons){
-    btn.addEventListener("click", e => {
-        console.log(e)
-        parentColumn = e.target.parentElement.parentElement
-        //console.log(parentColumn)
-        createTask(parentColumn)
-    })
-}
-
-console.log(taskElements)
-
-addDragToTask()
-for(let column of columnElements){
-    addDragToColumn(column)
-}
-
-function addDragToTask(){
-    for(let task of taskElements){
-        task.addEventListener("dragstart", e =>{
-            task.classList.add("dragging")
-            draggable = document.querySelector(".dragging")
-            console.log(e)
-        })
-    }
-}
-/*
-function changeTaskLocationInColoumn(task)
+for(let btn of addButtons)
 {
-    const draggable = document.querySelector('.dragging')
-    const afterElement = getDragAfterElement(task,e.clientY)
-    console.log(afterElement)
-    if (afterElement==null)
-    {
-        task.appendChild(draggable)
-    }
-    else{
-        task.insertBefore(draggable, afterElement)
-    }
-}
-*/
-function addDragToColumn(column){
-    column.addEventListener("dragover", e => {
-        //console.log("drag over")
-        e.preventDefault()
-        column.appendChild(draggable)
-    })
-    column.addEventListener("drop", e =>{
-        column.classList.remove("dragging")
-    })
-
-}
-function getDragAfterElement(coloumn,y)
-{
-    const draggableElements=[...coloumn.querySelectorAll('.task:not(.dragging)')]
-    //console.log(draggableElements)
-    return draggableElements.reduce((closest,child)=>
-    {
-        const box = child.getBoundingClientRect()
-        //console.log(box)
-        const offset = y - box.top - box.height/ 2
-        console.log(offset)
-        if(offset<0 && offset>closest.offset)
+    btn.addEventListener
+    (
+        "click", e =>
         {
-            return{offset: offset, element: child}
+            console.log(e)
+            let parentColumn = e.target.parentElement.parentElement
+            //console.log(parentColumn)
+            createTask(parentColumn)
         }
-        else {
-            return closest
-        }
-    },{offset: Number.NEGATIVE_INFINITY}).element
+    )
 }
-$("#saveBtn").click(()=>{
-    createTask()
-})
 function createTask(parentColumn)
 {
-    let taskname=prompt("Task Name:","Task ")
-    $(parentColumn).append(
-        '<div class = "task" draggable="true">'+taskname+'</div>'
+    /*
+    $(parentColumn).append
+    (
+        '<div>'
+            +prompt("Task Name:","Task ")
+        +'</div>'
     )
+    */
+    const newElement = document.createElement("div")
+    console.log(newElement)
+    newElement.classList = "task"
+    newElement.draggable = false
+    newElement.innerHTML = prompt("Task Name:","Task ")
+    parentColumn.appendChild(newElement)
+    draggables = document.querySelectorAll('.task')
+    console.log(draggables)
+}
 
-    console.log(columnElements)
+draggables.forEach(draggable => {
+    draggable.addEventListener('dragstart', () => {
+        draggable.classList.add('dragging')
+    })
+
+    draggable.addEventListener('dragend', () => {
+        draggable.classList.remove('dragging')
+    })
+})
+
+containers.forEach(container => {
+    container.addEventListener('dragover', e => {
+        e.preventDefault()
+        const afterElement = getDragAfterElement(container, e.clientY)
+        let draggable = document.querySelector('.dragging')
+        if (afterElement == null) {
+            container.appendChild(draggable)
+        } else {
+            container.insertBefore(draggable, afterElement)
+        }
+    })
+})
+
+function getDragAfterElement(container, y) {
+    const draggableElements = [...container.querySelectorAll('.draggable:not(.dragging)')]
+
+    return draggableElements.reduce((closest, child) => {
+        const box = child.getBoundingClientRect()
+        const offset = y - box.top - box.height / 2
+        if (offset < 0 && offset > closest.offset) {
+            return { offset: offset, element: child }
+        } else {
+            return closest
+        }
+    }, { offset: Number.NEGATIVE_INFINITY }).element
 }
